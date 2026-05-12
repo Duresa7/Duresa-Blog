@@ -1,0 +1,32 @@
+---
+import Base from '../layouts/Base.astro';
+import { listPublishedPosts } from '../lib/posts';
+import BlogCard from '../components/BlogCard.astro';
+
+const posts = listPublishedPosts();
+---
+
+<Base title="Field notes · Duresa Kadi" current="home">
+  <main class="page" data-screen-label="Blog">
+    <section class="blog-hero">
+      <h1 class="blog-title reveal">Field notes.</h1>
+      <p class="blog-sub reveal" style="--reveal-delay: 140ms;">
+        Essays and shorter notebooks on cybersecurity, network plumbing,
+        emerging threats, and whatever else I'm reading at midnight.
+      </p>
+      <div class="blog-count-row reveal" style="--reveal-delay: 220ms;">
+        <span class="blog-count"
+          >{posts.length} {posts.length === 1 ? 'post' : 'posts'}</span
+        >
+      </div>
+    </section>
+
+    <div class="blog-card-grid">
+      {
+        posts.map((post, i) => (
+          <BlogCard post={post} index={i} headingLevel="h2" />
+        ))
+      }
+    </div>
+  </main>
+</Base>

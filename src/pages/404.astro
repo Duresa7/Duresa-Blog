@@ -1,0 +1,58 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="404 · Duresa Kadi">
+  <main class="page" data-screen-label="404">
+    <section class="shell-narrow not-found">
+      <div class="kicker reveal">Error · 404</div>
+      <h1 class="reveal" style="--reveal-delay: 80ms;">Page not found.</h1>
+      <p class="reveal" style="--reveal-delay: 160ms;">
+        That URL doesn't lead anywhere here. The post may have moved, or the
+        link was mistyped.
+      </p>
+      <div class="not-found-links reveal" style="--reveal-delay: 240ms;">
+        <a href="/">All posts</a>
+      </div>
+    </section>
+  </main>
+</Base>
+
+<style>
+  .not-found {
+    padding: clamp(80px, 14vw, 160px) clamp(20px, 4vw, 32px);
+    text-align: center;
+  }
+  .not-found h1 {
+    font-family: var(--f-display);
+    font-weight: 700;
+    font-size: clamp(36px, 5vw, 56px);
+    letter-spacing: -0.025em;
+    margin: 18px 0 18px;
+  }
+  .not-found p {
+    color: var(--fg-muted);
+    font-size: 16px;
+    line-height: 1.6;
+    margin: 0 auto 28px;
+    max-width: 480px;
+  }
+  .not-found-links {
+    font-family: var(--f-mono);
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--fg-muted);
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .not-found-links a {
+    color: var(--fg);
+    border-bottom: 1px solid var(--hairline);
+    padding-bottom: 2px;
+  }
+  .not-found-links a:hover {
+    border-bottom-color: var(--fg);
+  }
+</style>

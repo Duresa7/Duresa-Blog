@@ -1,0 +1,101 @@
+---
+import Base from '../layouts/Base.astro';
+import {
+  getPostBySlug,
+  listPublishedPosts,
+  formatPublishedDate,
+} from '../lib/posts';
+
+export function getStaticPaths() {
+  return listPublishedPosts().map((post) => ({ params: { slug: post.slug } }));
+}
+
+const { slug } = Astro.params;
+const post = getPostBySlug(slug!)!;
+
+const all = listPublishedPosts();
+const idx = all.findIndex((p) => p.slug === post.slug);
+const next = idx >= 0 ? all[idx + 1] : undefined;
+const prev = idx > 0 ? all[idx - 1] : undefined;
+---
+
+<Base title={`${post.title} · Duresa Kadi`}>
+  <main class="page" data-screen-label={`Post — ${post.slug}`}>
+    <article class="shell-narrow post-detail">
+      <a class="post-back reveal" href="/">← All posts</a>
+      {
+        post.kicker && (
+          <div class="kicker reveal" style="--reveal-delay: 80ms;">
+            {post.kicker}
+          </div>
+        )
+      }
+      <h1 class="post-headline reveal" style="--reveal-delay: 140ms;">
+        {post.title}
+      </h1>
+      {
+        post.standfirst && (
+          <p class="post-stand-large reveal" style="--reveal-delay: 220ms;">
+            {post.standfirst}
+          </p>
+        )
+      }
+      <div class="post-byline reveal" style="--reveal-delay: 280ms;">
+        <span><strong>By</strong> Duresa Kadi</span>
+        <span>{formatPublishedDate(post.published_at)}</span>
+        <span>{post.read_time_min} minute read</span>
+      </div>
+    </article>
+
+    {
+      post.hero_image_url && (
+        <img
+          class="post-hero-image reveal"
+          src={post.hero_image_url}
+          alt={post.title}
+        />
+      )
+    }
+
+    <article class="shell-narrow">
+      <div
+        class="post-body-prose reveal"
+        style="--reveal-delay: 340ms;"
+        set:html={post.body_html}
+      />
+
+      <div class="post-reactions">
+        <button class="share-btn" type="button" data-share
+          ><span data-share-label>Share</span></button
+        >
+      </div>
+
+      <div class="post-foot">
+        {prev ? <a href={`/${prev.slug}`}>← {prev.title}</a> : <span />}
+        {next ? <a href={`/${next.slug}`}>{next.title} →</a> : <span />}
+      </div>
+    </article>
+  </main>
+  <script>
+    const shareBtn = document.querySelector(
+      '[data-share]',
+    ) as HTMLButtonElement | null;
+    const shareLabelEl = document.querySelector(
+      '[data-share-label]',
+    ) as HTMLSpanElement | null;
+
+    shareBtn?.addEventListener('click', async () => {
+      if (!shareLabelEl) return;
+      const original = shareLabelEl.textContent;
+      try {
+        await navigator.clipboard.writeText(window.location.href);
+        shareLabelEl.textContent = 'Link copied';
+      } catch {
+        shareLabelEl.textContent = 'Copy failed';
+      }
+      setTimeout(() => {
+        if (shareLabelEl) shareLabelEl.textContent = original ?? 'Share';
+      }, 1800);
+    });
+  </script>
+</Base>

@@ -1,0 +1,34 @@
+---
+import { SITE } from '../lib/site-data';
+
+interface Props {
+  current?: 'home' | null;
+}
+const { current = null } = Astro.props;
+---
+
+<nav class="site-nav">
+  <div class="site-nav-inner">
+    <a class="nav-brand" href="/">
+      <img
+        class="nav-brand-mark"
+        src="/images/alphasec-united-logo-only-favicon.png"
+        alt=""
+        aria-hidden="true"
+      />
+      <span>Duresa Kadi</span>
+    </a>
+    <div class="nav-links">
+      <a
+        class="nav-link"
+        href="/"
+        aria-current={current === 'home' ? 'page' : undefined}
+      >
+        Blog
+      </a>
+      <a class="nav-link" href={SITE.portfolioUrl} rel="noopener">
+        Portfolio ↗
+      </a>
+    </div>
+  </div>
+</nav>

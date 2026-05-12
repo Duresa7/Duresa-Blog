@@ -1,0 +1,81 @@
+# build / deps
+node_modules/
+dist/
+.astro/
+.vercel/
+
+# env / secrets
+.env
+.env.*
+!.env.example
+.mcp.json
+.tmp/
+*.pem
+*.key
+secrets.json
+.secrets
+
+# user uploads / personal assets (resume PDFs, draft docs, etc.)
+public/uploads/
+
+# editors / IDEs
+.vscode/
+.vscode-test/
+.idea/
+*.iml
+*.ipr
+*.iws
+.fleet/
+.cursor/
+.zed/
+.history/
+*.code-workspace
+.project
+.classpath
+.settings/
+*.sublime-project
+*.sublime-workspace
+.nova/
+.atom/
+.swp
+.swo
+*.swp
+*.swo
+*~
+
+# OS cruft
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# agent tool state (skills, per-editor local dirs)
+.agents/
+.claude/
+.junie/
+.kiro/
+.windsurf/
+skills-lock.json
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# misc
+coverage/
+.nyc_output/
+.cache/
+.turbo/
+.next/
+playwright-report/
+test-results/
+*.tsbuildinfo
+.netrwhist
+tmp images/
