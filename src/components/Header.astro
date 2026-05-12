@@ -1,6 +1,4 @@
 ---
-import { SITE } from '../lib/site-data';
-
 interface Props {
   current?: 'home' | null;
 }
@@ -25,9 +23,6 @@ const { current = null } = Astro.props;
         aria-current={current === 'home' ? 'page' : undefined}
       >
         Blog
-      </a>
-      <a class="nav-link" href={SITE.portfolioUrl} rel="noopener">
-        Portfolio ↗
       </a>
     </div>
   </div>
