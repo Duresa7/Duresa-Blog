@@ -1,15 +1,10 @@
 ---
 import { SITE } from '../lib/site-data';
+import SocialIcons from './SocialIcons.astro';
 const year = new Date().getFullYear();
 ---
 
 <footer class="site-footer">
-  <span>© {year} {SITE.name}</span>
-  <span>
-    <a href={SITE.github} target="_blank" rel="noopener">GitHub</a>
-    &nbsp;·&nbsp;
-    <a href={SITE.linkedin} target="_blank" rel="noopener">LinkedIn</a>
-    &nbsp;·&nbsp;
-    <a href={`mailto:${SITE.email}`}>Email</a>
-  </span>
+  <span>{SITE.name} © {year}</span>
+  <SocialIcons size="sm" className="site-footer-socials" />
 </footer>

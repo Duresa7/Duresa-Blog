@@ -1564,6 +1564,50 @@ img {
   border-color: var(--fg);
   background: var(--pill-bg);
 }
+.share-btn .share-icon {
+  width: 14px;
+  height: 14px;
+}
+
+.social-icons {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+}
+.social-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--fg-muted);
+  transition:
+    color 160ms var(--ease),
+    transform 160ms var(--ease);
+}
+.social-icon:hover {
+  color: var(--fg);
+  transform: translateY(-1px);
+}
+.social-icons-md .social-icon svg {
+  width: 22px;
+  height: 22px;
+}
+.social-icons-sm .social-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.post-social-row {
+  margin-top: 24px;
+  padding: 28px 0 8px;
+  display: flex;
+  justify-content: center;
+}
+
+.site-footer-socials {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
 
 .shell.section.testimonial-section {
   max-width: 1280px;

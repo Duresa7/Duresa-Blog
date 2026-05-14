@@ -1,5 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
+import SocialIcons from '../components/SocialIcons.astro';
+import { SITE } from '../lib/site-data';
 import {
   getPostBySlug,
   listPublishedPosts,
@@ -118,8 +120,27 @@ const tags = post.tags ?? [];
 
       <div class="post-reactions">
         <button class="share-btn" type="button" data-share
-          ><span data-share-label>Share</span></button
+          ><span data-share-label>Copy link</span></button
         >
+        <a
+          class="share-btn"
+          data-share-x
+          href={`https://x.com/intent/tweet?text=${encodeURIComponent(post.title)}&url=${encodeURIComponent(SITE.url + '/' + post.slug)}`}
+          target="_blank"
+          rel="noopener"
+          aria-label="Share on X"
+        >
+          <svg class="share-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path
+              d="M18.244 2H21.5l-7.5 8.57L23 22h-6.8l-5.32-6.96L4.8 22H1.54l8.02-9.17L1 2h6.96l4.82 6.37L18.24 2Zm-2.39 18h1.88L7.27 4H5.27l10.58 16Z"
+            ></path>
+          </svg>
+          <span>Share on X</span>
+        </a>
+      </div>
+
+      <div class="post-social-row">
+        <SocialIcons size="md" />
       </div>
 
       <div class="post-foot">
@@ -146,7 +167,7 @@ const tags = post.tags ?? [];
         shareLabelEl.textContent = 'Copy failed';
       }
       setTimeout(() => {
-        if (shareLabelEl) shareLabelEl.textContent = original ?? 'Share';
+        if (shareLabelEl) shareLabelEl.textContent = original ?? 'Copy link';
       }, 1800);
     });
   </script>
