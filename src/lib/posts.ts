@@ -8,6 +8,13 @@ export interface Post {
   hero_image_url: string | null;
   read_time_min: number | null;
   published_at: string | null;
+  tags?: string[];
+}
+
+export interface TocEntry {
+  id: string;
+  text: string;
+  level: 2 | 3;
 }
 
 const ROUTER_BODY = `
@@ -49,6 +56,7 @@ const POSTS: Post[] = [
     hero_image_url: null,
     read_time_min: 12,
     published_at: '2026-04-14T00:00:00Z',
+    tags: ['firmware', 'cybersecurity', 'reverse-engineering'],
   },
   {
     id: 'post-2',
@@ -61,6 +69,7 @@ const POSTS: Post[] = [
     hero_image_url: null,
     read_time_min: 7,
     published_at: '2026-04-02T00:00:00Z',
+    tags: ['tabletop', 'hobby', 'painting'],
   },
   {
     id: 'post-3',
@@ -73,6 +82,7 @@ const POSTS: Post[] = [
     hero_image_url: null,
     read_time_min: 9,
     published_at: '2026-03-21T00:00:00Z',
+    tags: ['cars', 'garage', 'mustang'],
   },
   {
     id: 'post-4',
@@ -85,6 +95,7 @@ const POSTS: Post[] = [
     hero_image_url: null,
     read_time_min: 5,
     published_at: '2026-03-08T00:00:00Z',
+    tags: ['style', 'sneakers', 'culture'],
   },
   {
     id: 'post-5',
@@ -97,6 +108,7 @@ const POSTS: Post[] = [
     hero_image_url: null,
     read_time_min: 14,
     published_at: '2026-02-19T00:00:00Z',
+    tags: ['ctf', 'writing', 'cybersecurity'],
   },
   {
     id: 'post-6',
@@ -109,8 +121,51 @@ const POSTS: Post[] = [
     hero_image_url: null,
     read_time_min: 6,
     published_at: '2026-01-30T00:00:00Z',
+    tags: ['cars', 'garage', 'essay'],
   },
 ];
+
+function slugifyHeading(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/<[^>]+>/g, '')
+    .replace(/&[a-z]+;/g, '')
+    .replace(/[^a-z0-9\s-]/g, '')
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-');
+}
+
+export function buildPostBody(html: string): { html: string; toc: TocEntry[] } {
+  const toc: TocEntry[] = [];
+  const used = new Set<string>();
+  const out = html.replace(
+    /<h([23])(\s[^>]*)?>([\s\S]*?)<\/h\1>/gi,
+    (_match, levelStr, attrs, inner) => {
+      const level = Number(levelStr) as 2 | 3;
+      const plain = String(inner).replace(/<[^>]+>/g, '').trim();
+      let id = slugifyHeading(plain);
+      if (!id) id = `section-${toc.length + 1}`;
+      let unique = id;
+      let n = 2;
+      while (used.has(unique)) unique = `${id}-${n++}`;
+      used.add(unique);
+      toc.push({ id: unique, text: plain, level });
+      return `<h${level} id="${unique}"${attrs ?? ''}>${inner}</h${level}>`;
+    },
+  );
+  return { html: out, toc };
+}
+
+export function getPostExcerpt(html: string, maxLen = 220): string {
+  const firstP = html.match(/<p[^>]*>([\s\S]*?)<\/p>/i);
+  if (!firstP) return '';
+  const text = firstP[1].replace(/<[^>]+>/g, '').trim();
+  if (text.length <= maxLen) return text;
+  const cut = text.slice(0, maxLen);
+  const lastSpace = cut.lastIndexOf(' ');
+  return (lastSpace > 0 ? cut.slice(0, lastSpace) : cut).trimEnd() + '…';
+}
 
 export function listPublishedPosts(opts?: { limit?: number }): Post[] {
   return opts?.limit ? POSTS.slice(0, opts.limit) : POSTS;

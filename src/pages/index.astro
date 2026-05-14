@@ -9,7 +9,16 @@ const posts = listPublishedPosts();
 <Base title="Field notes · Duresa Kadi" current="home">
   <main class="page" data-screen-label="Blog">
     <section class="blog-hero">
-      <h1 class="blog-title reveal">Field notes.</h1>
+      <h1 class="blog-title reveal">
+        Blogs <span class="blog-title-dots" aria-hidden="true">···</span>
+        <a class="blog-title-rss" href="/rss.xml" aria-label="RSS feed">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M4 11a9 9 0 0 1 9 9" />
+            <path d="M4 4a16 16 0 0 1 16 16" />
+            <circle cx="5" cy="19" r="1.5" fill="currentColor" />
+          </svg>
+        </a>
+      </h1>
       <p class="blog-sub reveal" style="--reveal-delay: 140ms;">
         Essays and shorter notebooks on cybersecurity, network plumbing,
         emerging threats, and whatever else I'm reading at midnight.
@@ -21,7 +30,7 @@ const posts = listPublishedPosts();
       </div>
     </section>
 
-    <div class="blog-card-grid">
+    <div class="blog-card-stack">
       {
         posts.map((post, i) => (
           <BlogCard post={post} index={i} headingLevel="h2" />
