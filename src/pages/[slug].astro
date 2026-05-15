@@ -24,11 +24,21 @@ const next = idx >= 0 ? all[idx + 1] : undefined;
 const prev = idx > 0 ? all[idx - 1] : undefined;
 
 const tags = post.tags ?? [];
+
+const heroSrc = post.hero_image_url;
+const heroWebp =
+  heroSrc && /\.(jpe?g|png)$/i.test(heroSrc)
+    ? heroSrc.replace(/\.(jpe?g|png)$/i, '.webp')
+    : null;
 ---
 
 <Base title={`${post.title} · Duresa Kadi`}>
+  <div class="reading-progress" aria-hidden="true">
+    <div class="reading-progress-bar" data-progress-bar></div>
+  </div>
+
   <main class="page" data-screen-label={`Post — ${post.slug}`}>
-    <article class="shell-narrow post-detail">
+    <article class="shell-post post-detail">
       <a class="post-back reveal" href="/">← All posts</a>
       {
         post.kicker && (
@@ -49,16 +59,32 @@ const tags = post.tags ?? [];
       }
       <div class="post-byline reveal" style="--reveal-delay: 280ms;">
         <span class="post-byline-item">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <rect x="3" y="4" width="18" height="18" rx="2" />
-            <path d="M16 2v4M8 2v4M3 10h18" />
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+            <path d="M16 2v4M8 2v4M3 10h18"></path>
           </svg>
           Posted on {formatPublishedDate(post.published_at)}
         </span>
         {
           post.read_time_min && (
             <span class="post-byline-item">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
                 <circle cx="12" cy="12" r="10" />
                 <path d="M12 6v6l4 2" />
               </svg>
@@ -83,73 +109,113 @@ const tags = post.tags ?? [];
     </article>
 
     {
-      post.hero_image_url && (
-        <img
-          class="post-hero-image reveal"
-          src={post.hero_image_url}
-          alt={post.title}
-        />
+      heroSrc && (
+        <picture class="post-hero-picture reveal">
+          {heroWebp && <source srcset={heroWebp} type="image/webp" />}
+          <img
+            class="post-hero-image"
+            src={heroSrc}
+            alt={post.title}
+            loading="eager"
+            decoding="async"
+            width="1536"
+            height="1024"
+          />
+        </picture>
       )
     }
 
-    <article class="shell-narrow">
-      {
-        toc.length > 1 && (
-          <nav class="post-toc reveal" aria-label="Table of contents">
-            <div class="post-toc-title">Table of Contents</div>
-            <ul class="post-toc-list">
-              {toc.map((entry) => (
-                <li class={`post-toc-item post-toc-item-l${entry.level}`}>
-                  <a href={`#${entry.id}`}>{entry.text}</a>
-                </li>
-              ))}
-            </ul>
-          </nav>
-        )
-      }
+    <div class="post-body-wrap">
+      <div class="post-body-grid">
+        {
+          toc.length > 1 && (
+            <aside class="post-body-side">
+              <nav
+                class="post-toc reveal"
+                aria-label="Table of contents"
+                data-toc
+              >
+                <div class="post-toc-title">Table of Contents</div>
+                <ul class="post-toc-list">
+                  {toc.map((entry) => (
+                    <li class={`post-toc-item post-toc-item-l${entry.level}`}>
+                      <a href={`#${entry.id}`} data-toc-link={entry.id}>
+                        {entry.text}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+            </aside>
+          )
+        }
 
-      <div
-        class="post-body-prose reveal"
-        style="--reveal-delay: 340ms;"
-        set:html={bodyHtml}
-      />
+        <div class="post-body-main">
+          <div
+            class="post-body-prose reveal"
+            style="--reveal-delay: 340ms;"
+            set:html={bodyHtml}
+          />
 
-      <div class="post-signoff">
-        <span class="post-signoff-name">— Duresa Kadi</span>
+          <div class="post-signoff">
+            <span class="post-signoff-name">— Duresa Kadi</span>
+          </div>
+
+          <div class="post-reactions">
+            <button class="share-btn" type="button" data-share
+              ><span data-share-label>Copy link</span></button
+            >
+          </div>
+
+          <a
+            class="share-x-floating"
+            href={`https://x.com/intent/tweet?text=${encodeURIComponent(post.title)}&url=${encodeURIComponent(SITE.url + '/' + post.slug)}`}
+            target="_blank"
+            rel="noopener"
+            aria-label="Share on X"
+            title="Share on X"
+          >
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path
+                d="M18.244 2H21.5l-7.5 8.57L23 22h-6.8l-5.32-6.96L4.8 22H1.54l8.02-9.17L1 2h6.96l4.82 6.37L18.24 2Zm-2.39 18h1.88L7.27 4H5.27l10.58 16Z"
+              ></path>
+            </svg>
+            <span class="share-x-floating-label">Share on X</span>
+          </a>
+
+          <div class="post-social-row">
+            <SocialIcons size="md" />
+          </div>
+
+          <div class="post-foot">
+            {prev ? <a href={`/${prev.slug}`}>← {prev.title}</a> : <span />}
+            {next ? <a href={`/${next.slug}`}>{next.title} →</a> : <span />}
+          </div>
+        </div>
       </div>
+    </div>
 
-      <div class="post-reactions">
-        <button class="share-btn" type="button" data-share
-          ><span data-share-label>Copy link</span></button
-        >
-        <a
-          class="share-btn"
-          data-share-x
-          href={`https://x.com/intent/tweet?text=${encodeURIComponent(post.title)}&url=${encodeURIComponent(SITE.url + '/' + post.slug)}`}
-          target="_blank"
-          rel="noopener"
-          aria-label="Share on X"
-        >
-          <svg class="share-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-            <path
-              d="M18.244 2H21.5l-7.5 8.57L23 22h-6.8l-5.32-6.96L4.8 22H1.54l8.02-9.17L1 2h6.96l4.82 6.37L18.24 2Zm-2.39 18h1.88L7.27 4H5.27l10.58 16Z"
-            ></path>
-          </svg>
-          <span>Share on X</span>
-        </a>
-      </div>
-
-      <div class="post-social-row">
-        <SocialIcons size="md" />
-      </div>
-
-      <div class="post-foot">
-        {prev ? <a href={`/${prev.slug}`}>← {prev.title}</a> : <span />}
-        {next ? <a href={`/${next.slug}`}>{next.title} →</a> : <span />}
-      </div>
-    </article>
+    <button
+      class="back-to-top"
+      type="button"
+      aria-label="Back to top"
+      data-back-to-top
+    >
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M12 19V5M5 12l7-7 7 7"></path>
+      </svg>
+    </button>
   </main>
   <script>
+    // Share button
     const shareBtn = document.querySelector(
       '[data-share]',
     ) as HTMLButtonElement | null;
@@ -169,6 +235,97 @@ const tags = post.tags ?? [];
       setTimeout(() => {
         if (shareLabelEl) shareLabelEl.textContent = original ?? 'Copy link';
       }, 1800);
+    });
+
+    // Reading progress bar
+    const progressBar = document.querySelector(
+      '[data-progress-bar]',
+    ) as HTMLElement | null;
+    const article = document.querySelector(
+      '.post-body-prose',
+    ) as HTMLElement | null;
+
+    const updateProgress = () => {
+      if (!progressBar || !article) return;
+      const rect = article.getBoundingClientRect();
+      const start = rect.top + window.scrollY;
+      const end = start + rect.height - window.innerHeight;
+      const current = window.scrollY;
+      const ratio = Math.max(0, Math.min(1, (current - start) / (end - start)));
+      progressBar.style.transform = `scaleX(${ratio})`;
+    };
+    document.addEventListener('scroll', updateProgress, { passive: true });
+    window.addEventListener('resize', updateProgress);
+    updateProgress();
+
+    // Active TOC highlighting via IntersectionObserver
+    const tocLinks = Array.from(
+      document.querySelectorAll<HTMLAnchorElement>('[data-toc-link]'),
+    );
+    const headingIds = tocLinks.map((a) => a.dataset.tocLink!).filter(Boolean);
+    const headings = headingIds
+      .map((id) => document.getElementById(id))
+      .filter((el): el is HTMLElement => !!el);
+
+    const setActive = (id: string) => {
+      tocLinks.forEach((a) => {
+        a.classList.toggle('is-active', a.dataset.tocLink === id);
+      });
+    };
+
+    if (headings.length > 0 && 'IntersectionObserver' in window) {
+      const visible = new Map<string, number>();
+      const io = new IntersectionObserver(
+        (entries) => {
+          for (const e of entries) {
+            const id = e.target.id;
+            if (e.isIntersecting) {
+              visible.set(id, e.intersectionRatio);
+            } else {
+              visible.delete(id);
+            }
+          }
+          if (visible.size > 0) {
+            let bestId = '';
+            let bestTop = Infinity;
+            for (const id of visible.keys()) {
+              const el = document.getElementById(id);
+              if (!el) continue;
+              const top = el.getBoundingClientRect().top;
+              if (top < bestTop) {
+                bestTop = top;
+                bestId = id;
+              }
+            }
+            if (bestId) setActive(bestId);
+          } else {
+            // Fall back: pick last heading whose top is above the viewport midline
+            let aboveId = '';
+            for (const h of headings) {
+              if (h.getBoundingClientRect().top < window.innerHeight * 0.3) {
+                aboveId = h.id;
+              }
+            }
+            if (aboveId) setActive(aboveId);
+          }
+        },
+        { rootMargin: '-80px 0px -60% 0px', threshold: [0, 0.5, 1] },
+      );
+      headings.forEach((h) => io.observe(h));
+    }
+
+    // Back-to-top button visibility + behavior
+    const backBtn = document.querySelector(
+      '[data-back-to-top]',
+    ) as HTMLButtonElement | null;
+    const toggleBack = () => {
+      if (!backBtn) return;
+      backBtn.classList.toggle('is-visible', window.scrollY > 600);
+    };
+    document.addEventListener('scroll', toggleBack, { passive: true });
+    toggleBack();
+    backBtn?.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     });
   </script>
 </Base>

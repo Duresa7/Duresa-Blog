@@ -6,6 +6,7 @@ export interface Post {
   kicker: string | null;
   body_html: string;
   hero_image_url: string | null;
+  thumb_image_url?: string | null;
   read_time_min: number | null;
   published_at: string | null;
   tags?: string[];
@@ -81,7 +82,8 @@ const POSTS: Post[] = [
       "Two years in, I've made peace with the bill that snuck up on me. What I still can't get over is the naming.",
     kicker: 'Essay · cloud',
     body_html: AWS_BODY,
-    hero_image_url: '/images/aws-screw.png',
+    hero_image_url: '/images/aws-screw.jpg',
+    thumb_image_url: '/images/aws-naming-meeting.jpg',
     read_time_min: 5,
     published_at: '2026-05-14T00:00:00Z',
     tags: ['aws', 'cloud', 'opinion', 'naming'],
@@ -106,7 +108,9 @@ export function buildPostBody(html: string): { html: string; toc: TocEntry[] } {
     /<h([23])(\s[^>]*)?>([\s\S]*?)<\/h\1>/gi,
     (_match, levelStr, attrs, inner) => {
       const level = Number(levelStr) as 2 | 3;
-      const plain = String(inner).replace(/<[^>]+>/g, '').trim();
+      const plain = String(inner)
+        .replace(/<[^>]+>/g, '')
+        .trim();
       let id = slugifyHeading(plain);
       if (!id) id = `section-${toc.length + 1}`;
       let unique = id;
@@ -114,7 +118,8 @@ export function buildPostBody(html: string): { html: string; toc: TocEntry[] } {
       while (used.has(unique)) unique = `${id}-${n++}`;
       used.add(unique);
       toc.push({ id: unique, text: plain, level });
-      return `<h${level} id="${unique}"${attrs ?? ''}>${inner}</h${level}>`;
+      const anchor = `<a class="heading-anchor" href="#${unique}" aria-label="Link to ${plain}">#</a>`;
+      return `<h${level} id="${unique}"${attrs ?? ''}>${inner}${anchor}</h${level}>`;
     },
   );
   return { html: out, toc };

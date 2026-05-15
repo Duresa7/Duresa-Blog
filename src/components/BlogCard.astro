@@ -10,84 +10,125 @@ const { post, index = 0, headingLevel = 'h2' } = Astro.props;
 const HeadingTag = headingLevel;
 const excerpt = getPostExcerpt(post.body_html);
 const tags = post.tags ?? [];
+
+const thumbSrc = post.thumb_image_url;
+const thumbWebp =
+  thumbSrc && /\.(jpe?g|png)$/i.test(thumbSrc)
+    ? thumbSrc.replace(/\.(jpe?g|png)$/i, '.webp')
+    : null;
+const hasThumb = Boolean(thumbSrc);
 ---
 
-<article class="blog-card reveal" style={`--reveal-delay: ${index * 60}ms;`}>
-  <HeadingTag class="blog-card-title">
-    <a href={`/${post.slug}`}>{post.title}</a>
-  </HeadingTag>
+<article
+  class:list={['blog-card', 'reveal', hasThumb && 'blog-card-with-thumb']}
+  style={`--reveal-delay: ${index * 60}ms;`}
+>
+  <div class="blog-card-content">
+    <HeadingTag class="blog-card-title">
+      <a href={`/${post.slug}`}>{post.title}</a>
+    </HeadingTag>
 
-  <div class="blog-card-meta">
+    <div class="blog-card-meta">
+      {
+        post.published_at && (
+          <span class="blog-card-meta-item">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <rect x="3" y="4" width="18" height="18" rx="2" />
+              <path d="M16 2v4M8 2v4M3 10h18" />
+            </svg>
+            <span>Posted on {formatPublishedDate(post.published_at)}</span>
+          </span>
+        )
+      }
+      {
+        post.read_time_min && (
+          <span class="blog-card-meta-item">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 6v6l4 2" />
+            </svg>
+            <span>{post.read_time_min} Minutes</span>
+          </span>
+        )
+      }
+    </div>
+
     {
-      post.published_at && (
-        <span class="blog-card-meta-item">
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.8"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            aria-hidden="true"
-          >
-            <rect x="3" y="4" width="18" height="18" rx="2" />
-            <path d="M16 2v4M8 2v4M3 10h18" />
-          </svg>
-          <span>Posted on {formatPublishedDate(post.published_at)}</span>
-        </span>
+      tags.length > 0 && (
+        <div class="blog-card-tags">
+          {tags.map((t) => (
+            <span class="blog-card-tag">#{t}</span>
+          ))}
+        </div>
       )
     }
+
     {
-      post.read_time_min && (
-        <span class="blog-card-meta-item">
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.8"
-            stroke-linecap="round"
-            stroke-linejoin="round"
+      post.standfirst && (
+        <blockquote class="blog-card-quote">
+          <span
+            class="blog-card-quote-mark blog-card-quote-mark-open"
             aria-hidden="true"
           >
-            <circle cx="12" cy="12" r="10" />
-            <path d="M12 6v6l4 2" />
-          </svg>
-          <span>{post.read_time_min} Minutes</span>
-        </span>
+            &ldquo;
+          </span>
+          <span class="blog-card-quote-text">{post.standfirst}</span>
+          <span
+            class="blog-card-quote-mark blog-card-quote-mark-close"
+            aria-hidden="true"
+          >
+            &rdquo;
+          </span>
+        </blockquote>
       )
     }
+
+    {excerpt && <p class="blog-card-excerpt">{excerpt}</p>}
+
+    <div class="blog-card-foot">
+      <a class="blog-card-readmore" href={`/${post.slug}`}>
+        Read More
+        <span aria-hidden="true">…</span>
+      </a>
+    </div>
   </div>
 
   {
-    tags.length > 0 && (
-      <div class="blog-card-tags">
-        {tags.map((t) => (
-          <span class="blog-card-tag">#{t}</span>
-        ))}
-      </div>
+    hasThumb && (
+      <a
+        class="blog-card-thumb"
+        href={`/${post.slug}`}
+        aria-hidden="true"
+        tabindex="-1"
+      >
+        <picture>
+          {thumbWebp && <source srcset={thumbWebp} type="image/webp" />}
+          <img
+            src={thumbSrc}
+            alt=""
+            loading="lazy"
+            decoding="async"
+            width="800"
+            height="800"
+          />
+        </picture>
+      </a>
     )
   }
-
-  {
-    post.standfirst && (
-      <blockquote class="blog-card-quote">
-        <span class="blog-card-quote-mark blog-card-quote-mark-open" aria-hidden="true">
-          &ldquo;
-        </span>
-        <span class="blog-card-quote-text">{post.standfirst}</span>
-        <span class="blog-card-quote-mark blog-card-quote-mark-close" aria-hidden="true">
-          &rdquo;
-        </span>
-      </blockquote>
-    )
-  }
-
-  {excerpt && <p class="blog-card-excerpt">{excerpt}</p>}
-
-  <div class="blog-card-foot">
-    <a class="blog-card-readmore" href={`/${post.slug}`}>
-      Read More
-      <span aria-hidden="true">…</span>
-    </a>
-  </div>
 </article>
