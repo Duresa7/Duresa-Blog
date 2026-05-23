@@ -82,3 +82,10 @@ test-results/
 *.tsbuildinfo
 .netrwhist
 tmp images/
+
+# scratch / backups
+*.bak
+*.orig
+*.tmp
+.scratch/
+scratch.*

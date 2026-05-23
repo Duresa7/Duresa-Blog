@@ -10,6 +10,11 @@ const { post, index = 0, headingLevel = 'h2' } = Astro.props;
 const HeadingTag = headingLevel;
 const excerpt = getPostExcerpt(post.body_html);
 const tags = post.tags ?? [];
+const standfirst = post.standfirst
+  ?.trim()
+  .replace(/^[“”"'‘’]+/, '')
+  .replace(/[“”"'‘’]+$/, '')
+  .trim();
 
 const thumbSrc = post.thumb_image_url;
 const thumbWebp =
@@ -80,21 +85,9 @@ const hasThumb = Boolean(thumbSrc);
     }
 
     {
-      post.standfirst && (
+      standfirst && (
         <blockquote class="blog-card-quote">
-          <span
-            class="blog-card-quote-mark blog-card-quote-mark-open"
-            aria-hidden="true"
-          >
-            &ldquo;
-          </span>
-          <span class="blog-card-quote-text">{post.standfirst}</span>
-          <span
-            class="blog-card-quote-mark blog-card-quote-mark-close"
-            aria-hidden="true"
-          >
-            &rdquo;
-          </span>
+          <span class="blog-card-quote-text">{standfirst}</span>
         </blockquote>
       )
     }
@@ -103,8 +96,18 @@ const hasThumb = Boolean(thumbSrc);
 
     <div class="blog-card-foot">
       <a class="blog-card-readmore" href={`/${post.slug}`}>
-        Read More
-        <span aria-hidden="true">…</span>
+        <span>Read post</span>
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M5 12h14M13 5l7 7-7 7" />
+        </svg>
       </a>
     </div>
   </div>

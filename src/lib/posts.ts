@@ -73,13 +73,84 @@ const AWS_BODY = `
 <p>With AWS, it sometimes feels like every service needs its own branded name, even when a simpler name would probably make more sense.</p>
 `.trim();
 
+const AVATAR_BODY = `
+<p>There's something strange about revisiting a childhood show as an adult. Sometimes it hits you in ways you never expected.</p>
+<p>Recently, I watched the leaked version of the new <em>Avatar</em> movie. Yeah, I know. I couldn't wait.</p>
+<p>And honestly, this is not my usual kind of blog post. Normally I'm writing about cybersecurity, tech, or random IT projects I'm messing around with at 2 AM. But this time, I wanted to write about something more personal.</p>
+<p>I grew up watching <em>Avatar: The Last Airbender</em>. Aang, Katara, Toph, Zuko, Sokka. That entire world was a huge part of my childhood. Later on, I got into <em>Korra</em> too, and every time new episodes aired, I was there watching.</p>
+<p>I loved everything about it. The bending, the fights, the animation, the world-building. Even the filler episodes somehow felt special back then.</p>
+
+<h2>Rewatching It as an Adult</h2>
+<p>As a kid, I think I mostly loved it because it looked cool. Fire bending, air bending, giant fights, all of that. But when I got older, around 20 or 21, I rewatched the entire series again, both <em>The Last Airbender</em> and <em>Korra</em>.</p>
+<p>And somehow, I loved it even more.</p>
+<p>When you rewatch it as an adult, you start understanding the deeper parts of the story. The war, the loss, the pressure the characters carried, the trauma, the responsibility. It stopped feeling like "just a cartoon" and started feeling like something way more emotional.</p>
+<p>Even the Fire Nation felt completely different to me watching it older. As a kid, they were just the bad guys. As an adult, the entire thing felt way darker and more serious than I originally realized.</p>
+
+<h2>The Leaked Movie</h2>
+<p>A few nights ago, one of my friends sent me the leaked movie.</p>
+<p>At first, I barely watched it. I clicked through a couple minutes and immediately noticed how insanely good the animation looked. Honestly, it almost felt more like a Japanese anime at some points, which I loved because I've always been into anime too.</p>
+<p>Then a couple days later, I decided to actually sit down and watch the whole thing.</p>
+<p>And the moment I saw Aang and the rest of the characters again, something hit me emotionally in a way I genuinely wasn't expecting.</p>
+<p>I started tearing up almost immediately.</p>
+<p>Not full-on sobbing or anything dramatic. But one of those moments where your chest tightens up and suddenly emotions start coming out of nowhere.</p>
+<p>And honestly, I couldn't even explain why at first.</p>
+
+<h2>What Avatar Actually Represents to Me</h2>
+<p>But the more I thought about it, the more I realized it probably had less to do with the movie itself and more to do with what <em>Avatar</em> represents to me.</p>
+<p>I didn't grow up in the best environment emotionally. I grew up with immigrant parents, and in my household, emotions were not really something you openly talked about. Especially as a guy.</p>
+<p>If I was sad, angry, anxious, or depressed, it usually got brushed aside.</p>
+<p>Mental health wasn't really understood in my house. I remember hearing things like, "That's just shaitan putting thoughts in your head," instead of actual emotional support.</p>
+<p>For anyone unfamiliar, shaitan in Islam is essentially the devil, someone who influences negative thoughts or behavior.</p>
+<p>So as a kid, hearing that constantly made it hard to even open up about how I felt. You start believing your emotions are something you're supposed to suppress or fight against instead of understand.</p>
+<p>And because of that, I spent years bottling everything up.</p>
+<p>Looking back now, I can honestly say I was probably depressed as a teenager. But at 12 or 13 years old, you don't really have the emotional maturity to fully understand what you're feeling. Especially when nobody around you recognizes it either.</p>
+
+<h2>Growing Up Alongside the Characters</h2>
+<p>So, while watching the movie, all those memories came flooding back at once.</p>
+<p>Not just memories of the show itself, but memories of who I was when I first watched it.</p>
+<p>I was around 12 or 13 years old when I first watched <em>Avatar</em>. Now I'm 25, maybe 26 depending on when this gets posted.</p>
+<p>And somehow, seeing those characters older now affected me way more than I expected because it felt like I grew up alongside them.</p>
+<p>Back then, they were kids.</p>
+<p>Now they're adults.</p>
+<p>And so am I.</p>
+<p>That realization hit me hard.</p>
+<p>I think part of why I got emotional was because it forced me to realize how much time has passed, but also how much I've grown as a person.</p>
+<p>Despite everything I dealt with growing up, despite feeling emotionally isolated for years, despite all the stuff I kept buried inside, I still made it this far.</p>
+<p>And weirdly enough, seeing characters that were such a huge part of my childhood also making it this far made me reflect on my own life too.</p>
+
+<h2>Closing Thoughts</h2>
+<p>Maybe my interpretation is completely wrong. Honestly, I still question why the movie affected me the way it did.</p>
+<p>But I think certain shows, movies, and stories become attached to specific periods of our lives so deeply that revisiting them feels like revisiting an old version of yourself.</p>
+<p>And sometimes that brings emotions back up that you didn't even realize were still there.</p>
+<p>Anyway, I know this is very different from the kind of stuff I usually post, but it's something I wanted to share.</p>
+<p>Ironically, when I told a couple people about getting emotional over the movie, they joked about it. Basically, the whole "grown man crying over anime" thing.</p>
+<p>But honestly, I don't really care anymore.</p>
+<p>Sometimes art hits people emotionally.</p>
+<p>Sometimes stories remind you of who you used to be.</p>
+<p>And sometimes that 12-year-old version of yourself is still somewhere inside you.</p>
+`.trim();
+
 const POSTS: Post[] = [
+  {
+    id: 'post-avatar-growing-up',
+    slug: 'growing-up-with-avatar',
+    title: 'Growing Up With Avatar',
+    standfirst:
+      "'Sometimes stories remind you of who you used to be. And sometimes that 12-year-old version of yourself is still somewhere inside you.'",
+    kicker: 'Personal · reflection',
+    body_html: AVATAR_BODY,
+    hero_image_url: '/images/avatar-childhood.jpg',
+    thumb_image_url: '/images/avatar-childhood-thumb.jpg',
+    read_time_min: 6,
+    published_at: '2026-05-23T00:00:00Z',
+    tags: ['personal', 'avatar', 'reflection', 'mental-health'],
+  },
   {
     id: 'post-aws-naming',
     slug: 'my-problem-with-aws',
     title: 'My Problem with AWS',
     standfirst:
-      "Two years in, I've made peace with the bill that snuck up on me. What I still can't get over is the naming.",
+      "'Two years in, I've made peace with the bill that snuck up on me. What I still can't get over is the naming.'",
     kicker: 'Essay · cloud',
     body_html: AWS_BODY,
     hero_image_url: '/images/aws-screw.jpg',
