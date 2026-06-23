@@ -23,10 +23,12 @@
   --grain-opacity: 0;
   --entropy-opacity: 0.45;
 
+  /* One typeface across the whole UI — display, body, and the "mono" metadata
+     slots (nav, footer, eyebrows, tags, clock) all resolve to Poppins. Only
+     real code blocks (--f-code) stay monospaced. */
   --f-display: 'Poppins', sans-serif;
   --f-body: 'Poppins', sans-serif;
-  --f-mono: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas,
-    'Liberation Mono', 'Courier New', monospace;
+  --f-mono: 'Poppins', sans-serif;
   --f-code: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas,
     'Liberation Mono', 'Courier New', monospace;
 
@@ -141,6 +143,39 @@ img {
   align-items: center;
   justify-content: space-between;
   gap: 24px;
+}
+.nav-clock {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  flex: none;
+  font-family: var(--f-mono);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+  color: var(--fg-muted);
+  white-space: nowrap;
+}
+.nav-clock-city {
+  color: var(--fg-dim);
+}
+.nav-clock-city::after {
+  content: '·';
+  margin-left: 6px;
+  color: var(--fg-faint);
+}
+.nav-clock-time {
+  color: var(--fg-muted);
+}
+@media (max-width: 720px) {
+  .nav-clock-city {
+    display: none;
+  }
+}
+@media (max-width: 600px) {
+  .nav-clock {
+    font-size: 11.5px;
+  }
 }
 .nav-brand {
   font-family: var(--f-display);

@@ -7,6 +7,14 @@ const { current = null } = Astro.props;
 
 <nav class="site-nav">
   <div class="site-nav-inner">
+    <span
+      class="nav-clock"
+      data-eastern-clock
+      aria-label="Current time in Washington, DC (Eastern)"
+    >
+      <span class="nav-clock-city">Washington, DC</span>
+      <span class="nav-clock-time" data-clock-time>—</span>
+    </span>
     <a class="nav-brand" href="/">
       <img
         class="nav-brand-mark"
@@ -27,3 +35,22 @@ const { current = null } = Astro.props;
     </div>
   </div>
 </nav>
+
+<script is:inline>
+  (function () {
+    var el = document.querySelector('[data-clock-time]');
+    if (!el) return;
+    var fmt = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/New_York',
+      hour: 'numeric',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true,
+    });
+    function tick() {
+      el.textContent = fmt.format(new Date());
+    }
+    tick();
+    setInterval(tick, 1000);
+  })();
+</script>
