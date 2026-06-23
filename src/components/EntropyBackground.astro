@@ -1,0 +1,308 @@
+---
+/**
+ * Full-viewport "entropy" background: an ordered particle lattice on the left
+ * dissolving into chaotic motion on the right, with faint connecting lines.
+ *
+ * Vanilla-JS port of the portfolio's React `EntropyBackground` component
+ * (Duresa-Portofilo/src/components/EntropyBackground.tsx). Renders behind all
+ * content (see `.entropy-bg` in site.css: fixed, z-index -1, pointer-events
+ * none) and stays cheap on every page:
+ *  - particle count and DPR are capped regardless of viewport size,
+ *  - neighbour lookups use a uniform spatial-hash grid (O(n), not O(n²)),
+ *  - draws are batched (one fill for all dots, a few strokes for all lines),
+ *  - the loop pauses while the tab is hidden,
+ *  - `prefers-reduced-motion` renders a single settled frame, no animation.
+ */
+---
+
+<div class="entropy-bg" aria-hidden="true">
+  <canvas id="entropy-canvas"></canvas>
+</div>
+
+<script is:inline>
+  (function () {
+    var canvas = document.getElementById('entropy-canvas');
+    if (!canvas) return;
+    var ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    var MAX_PARTICLES = 1100; // hard cap; spacing grows on large screens to hold it
+    var MIN_SPACING = 48; // px between lattice points on smaller screens
+    var INFLUENCE_RADIUS = 100; // chaos reach; also the spatial-grid cell size
+    var PARTICLE_SIZE = 1.7;
+    var REDUCED_MOTION_WARMUP = 220; // sim steps to settle the static frame
+
+    var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    var width = 0;
+    var height = 0;
+    var particles = [];
+    var gridCols = 0;
+    var gridRows = 0;
+    var buckets = [];
+    var lineRadius = 50;
+    var rafId = 0;
+    var resizeTimer = 0;
+
+    // Reused per-frame line-segment buffers, bucketed by opacity (near→far).
+    var segNear = [];
+    var segMid = [];
+    var segFar = [];
+
+    var rand = Math.random;
+
+    function setup() {
+      width = canvas.clientWidth || window.innerWidth;
+      height = canvas.clientHeight || window.innerHeight;
+      if (width === 0 || height === 0) return;
+
+      var dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.round(width * dpr);
+      canvas.height = Math.round(height * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      var target = Math.max(
+        MIN_SPACING,
+        Math.sqrt((width * height) / MAX_PARTICLES),
+      );
+      var cols = Math.max(2, Math.round(width / target));
+      var rows = Math.max(2, Math.round(height / target));
+      var sx = width / cols;
+      var sy = height / rows;
+      // Connect orthogonal lattice neighbours but not diagonals → a clean grid.
+      lineRadius = Math.min(90, Math.max(sx, sy) * 1.25);
+
+      var mid = width / 2;
+      particles = [];
+      for (var i = 0; i < cols; i++) {
+        for (var j = 0; j < rows; j++) {
+          var x = sx * (i + 0.5);
+          var y = sy * (j + 0.5);
+          particles.push({
+            x: x,
+            y: y,
+            ox: x,
+            oy: y,
+            vx: (rand() - 0.5) * 2,
+            vy: (rand() - 0.5) * 2,
+            order: x < mid,
+            influence: 0,
+          });
+        }
+      }
+
+      gridCols = Math.max(1, Math.ceil(width / INFLUENCE_RADIUS));
+      gridRows = Math.max(1, Math.ceil(height / INFLUENCE_RADIUS));
+      buckets = new Array(gridCols * gridRows);
+      for (var b = 0; b < buckets.length; b++) buckets[b] = [];
+    }
+
+    function cellX(x) {
+      var gx = (x / INFLUENCE_RADIUS) | 0;
+      return gx < 0 ? 0 : gx >= gridCols ? gridCols - 1 : gx;
+    }
+    function cellY(y) {
+      var gy = (y / INFLUENCE_RADIUS) | 0;
+      return gy < 0 ? 0 : gy >= gridRows ? gridRows - 1 : gy;
+    }
+
+    function rebuildBuckets() {
+      for (var i = 0; i < buckets.length; i++) buckets[i].length = 0;
+      for (var k = 0; k < particles.length; k++) {
+        var p = particles[k];
+        buckets[cellY(p.y) * gridCols + cellX(p.x)].push(k);
+      }
+    }
+
+    function step() {
+      rebuildBuckets();
+      var mid = width / 2;
+      for (var k = 0; k < particles.length; k++) {
+        var p = particles[k];
+        if (p.order) {
+          // Ordered particles drift home, but bleed toward nearby chaos.
+          var infX = 0;
+          var infY = 0;
+          var frameStrength = 0;
+          var gx = cellX(p.x);
+          var gy = cellY(p.y);
+          for (var cx = gx - 1; cx <= gx + 1; cx++) {
+            if (cx < 0 || cx >= gridCols) continue;
+            for (var cy = gy - 1; cy <= gy + 1; cy++) {
+              if (cy < 0 || cy >= gridRows) continue;
+              var bucket = buckets[cy * gridCols + cx];
+              for (var b = 0; b < bucket.length; b++) {
+                var q = particles[bucket[b]];
+                if (q.order) continue;
+                var d = Math.hypot(p.x - q.x, p.y - q.y);
+                if (d < INFLUENCE_RADIUS) {
+                  var s = 1 - d / INFLUENCE_RADIUS;
+                  infX += q.vx * s;
+                  infY += q.vy * s;
+                  if (s > frameStrength) frameStrength = s;
+                }
+              }
+            }
+          }
+          if (frameStrength > p.influence) p.influence = frameStrength;
+          var dx = p.ox - p.x;
+          var dy = p.oy - p.y;
+          p.x += dx * 0.05 * (1 - p.influence) + infX * p.influence;
+          p.y += dy * 0.05 * (1 - p.influence) + infY * p.influence;
+          p.influence *= 0.99;
+        } else {
+          // Chaotic random walk, bounded to the right half.
+          p.vx += (rand() - 0.5) * 0.5;
+          p.vy += (rand() - 0.5) * 0.5;
+          p.vx *= 0.95;
+          p.vy *= 0.95;
+          p.x += p.vx;
+          p.y += p.vy;
+          if (p.x < mid || p.x > width) p.vx *= -1;
+          if (p.y < 0 || p.y > height) p.vy *= -1;
+          p.x = p.x < mid ? mid : p.x > width ? width : p.x;
+          p.y = p.y < 0 ? 0 : p.y > height ? height : p.y;
+        }
+      }
+    }
+
+    function strokeSegments(seg, alpha) {
+      if (seg.length === 0) return;
+      ctx.strokeStyle = 'rgba(255,255,255,' + alpha + ')';
+      ctx.beginPath();
+      for (var i = 0; i < seg.length; i += 4) {
+        ctx.moveTo(seg[i], seg[i + 1]);
+        ctx.lineTo(seg[i + 2], seg[i + 3]);
+      }
+      ctx.stroke();
+    }
+
+    function render() {
+      ctx.clearRect(0, 0, width, height);
+      rebuildBuckets();
+
+      segNear.length = 0;
+      segMid.length = 0;
+      segFar.length = 0;
+
+      // Collect connection segments (dedup via idx > k), bucketed by distance.
+      for (var k = 0; k < particles.length; k++) {
+        var p = particles[k];
+        var gx = cellX(p.x);
+        var gy = cellY(p.y);
+        for (var cx = gx - 1; cx <= gx + 1; cx++) {
+          if (cx < 0 || cx >= gridCols) continue;
+          for (var cy = gy - 1; cy <= gy + 1; cy++) {
+            if (cy < 0 || cy >= gridRows) continue;
+            var bucket = buckets[cy * gridCols + cx];
+            for (var b = 0; b < bucket.length; b++) {
+              var idx = bucket[b];
+              if (idx <= k) continue;
+              var q = particles[idx];
+              var d = Math.hypot(p.x - q.x, p.y - q.y);
+              if (d >= lineRadius) continue;
+              var t = d / lineRadius;
+              var seg = t < 0.34 ? segNear : t < 0.67 ? segMid : segFar;
+              seg.push(p.x, p.y, q.x, q.y);
+            }
+          }
+        }
+      }
+
+      ctx.lineWidth = 0.6;
+      strokeSegments(segNear, 0.22);
+      strokeSegments(segMid, 0.13);
+      strokeSegments(segFar, 0.06);
+
+      // All dots in a single batched fill.
+      ctx.fillStyle = 'rgba(255,255,255,0.8)';
+      ctx.beginPath();
+      for (var n = 0; n < particles.length; n++) {
+        var pt = particles[n];
+        ctx.moveTo(pt.x + PARTICLE_SIZE, pt.y);
+        ctx.arc(pt.x, pt.y, PARTICLE_SIZE, 0, Math.PI * 2);
+      }
+      ctx.fill();
+
+      // The order / chaos boundary.
+      ctx.strokeStyle = 'rgba(255,255,255,0.16)';
+      ctx.lineWidth = 0.5;
+      ctx.beginPath();
+      ctx.moveTo(width / 2, 0);
+      ctx.lineTo(width / 2, height);
+      ctx.stroke();
+    }
+
+    function frame() {
+      step();
+      render();
+      rafId = requestAnimationFrame(frame);
+    }
+
+    function start() {
+      if (width === 0 || height === 0) {
+        setup();
+        if (width === 0 || height === 0) return;
+      }
+      if (reduceMotion.matches) {
+        for (var i = 0; i < REDUCED_MOTION_WARMUP; i++) step();
+        render();
+        return;
+      }
+      rafId = requestAnimationFrame(frame);
+    }
+
+    function stop() {
+      if (rafId) {
+        cancelAnimationFrame(rafId);
+        rafId = 0;
+      }
+    }
+
+    function onVisibility() {
+      if (document.hidden) {
+        stop();
+      } else if (!reduceMotion.matches && rafId === 0) {
+        rafId = requestAnimationFrame(frame);
+      }
+    }
+
+    function onResize() {
+      window.clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(function () {
+        stop();
+        setup();
+        start();
+      }, 200);
+    }
+
+    function onMotionChange() {
+      stop();
+      setup();
+      start();
+    }
+
+    function init() {
+      window.addEventListener('resize', onResize);
+      document.addEventListener('visibilitychange', onVisibility);
+      reduceMotion.addEventListener('change', onMotionChange);
+      // A fixed, inset:0 layer is viewport-sized, but its dimensions may not be
+      // ready the instant this inline script runs (e.g. before first layout).
+      // Re-run setup whenever the layer first gains — or changes — size so the
+      // lattice always fills the viewport instead of leaving the canvas at its
+      // 300x150 intrinsic default.
+      var host = canvas.parentElement;
+      if (host && typeof ResizeObserver !== 'undefined') {
+        new ResizeObserver(onResize).observe(host);
+      }
+      setup();
+      start();
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init, { once: true });
+    } else {
+      init();
+    }
+  })();
+</script>

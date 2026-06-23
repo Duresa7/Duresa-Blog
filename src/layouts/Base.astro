@@ -1,6 +1,7 @@
 ---
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import EntropyBackground from '../components/EntropyBackground.astro';
 import '../styles/site.css';
 
 interface Props {
@@ -11,24 +12,11 @@ const { title, current = null } = Astro.props;
 ---
 
 <!doctype html>
-<html lang="en" data-vibe="paper" data-type-pair="inter">
+<html lang="en" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
     <title>{title}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <script is:inline>
-      (function () {
-        try {
-          var stored = localStorage.getItem('theme');
-          var theme =
-            stored ||
-            (window.matchMedia('(prefers-color-scheme: dark)').matches
-              ? 'dark'
-              : 'light');
-          document.documentElement.setAttribute('data-theme', theme);
-        } catch (e) {}
-      })();
-    </script>
     <link
       rel="icon"
       type="image/png"
@@ -47,12 +35,13 @@ const { title, current = null } = Astro.props;
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&family=Roboto+Mono:wght@400;500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
     <slot name="head" />
   </head>
   <body>
+    <EntropyBackground />
     <Header current={current} />
     <slot />
     <Footer />
