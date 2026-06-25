@@ -5,7 +5,7 @@ export const SITE = {
   linkedin: 'https://www.linkedin.com/in/duresa-k-630039329',
   x: 'https://x.com/',
   rss: '/rss.xml',
-  portfolioUrl: 'https://duresakadi.alphsec.com',
+  portfolioUrl: 'https://duresakadi.com',
   url: 'https://duresakadi.me',
   description:
     "Field notes on cybersecurity, network plumbing, emerging threats, and whatever else I'm reading at midnight.",

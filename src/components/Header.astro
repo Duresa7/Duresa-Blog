@@ -1,8 +1,18 @@
 ---
+import { SITE } from '../lib/site-data';
+
 interface Props {
   current?: 'home' | null;
 }
 const { current = null } = Astro.props;
+
+const portfolioUrl = SITE.portfolioUrl.replace(/\/$/, '');
+const navItems = [
+  { href: `${portfolioUrl}/`, label: 'Home' },
+  { href: `${portfolioUrl}/about`, label: 'Resume' },
+  { href: `${portfolioUrl}/work`, label: 'Work' },
+  { href: '/', label: 'Blog', active: current === 'home' },
+];
 ---
 
 <nav class="site-nav">
@@ -25,13 +35,17 @@ const { current = null } = Astro.props;
       <span>Duresa Kadi</span>
     </a>
     <div class="nav-links">
-      <a
-        class="nav-link"
-        href="/"
-        aria-current={current === 'home' ? 'page' : undefined}
-      >
-        Blog
-      </a>
+      {
+        navItems.map((item) => (
+          <a
+            class:list={['nav-link', item.active && 'is-active']}
+            href={item.href}
+            aria-current={item.active ? 'page' : undefined}
+          >
+            {item.label}
+          </a>
+        ))
+      }
     </div>
   </div>
 </nav>
